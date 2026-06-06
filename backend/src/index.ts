@@ -68,7 +68,9 @@ app.post("/api/v1/signin", async (req, res) => {
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
     const link = req.body.link;
     const type = req.body.type;
+    const title = req.body.title;
     await contentModel.create({
+        title: title,
         type: type,
         link: link,
         //@ts-ignore
@@ -93,7 +95,7 @@ app.get("/api/v1/content", userMiddleware, async (req, res) => {
     })
 })
 
-app.delete("/api/v1/signup", userMiddleware, async (req, res) => {
+app.delete("/api/v1/content", userMiddleware, async (req, res) => {
     const contentId = req.body.contentId;
 
     await contentModel.deleteMany({

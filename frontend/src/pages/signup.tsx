@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { IconBrain, IconUser, IconLock, IconPlus } from "@tabler/icons-react";
 import axios from "axios";

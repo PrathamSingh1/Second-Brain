@@ -1,27 +1,34 @@
-"use client";
-
 import { useState } from "react";
 import { IconMenu2 } from "@tabler/icons-react";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { Sidebar } from "../components/sidebar";
 import ContentModal from "../components/content-model";
+import axios from "axios";
+import { BACKEND_URL } from "../config/config";
+import { useContent } from "../hooks/useContent";
 
 function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [cards, setCards] = useState([
-    {
-      title: "Twitter is x",
-      type: "twitter" as const,
-      link: "https://x.com/guerriero_se/status/2062906242247319896",
-    },
-    {
-      title: "Youtube is cool",
-      type: "youtube" as const,
-      link: "https://www.youtube.com/watch?v=oIAziSgsQ90&t=498s",
-    },
-  ]);
+  const { cards, setCards } = useContent();
+
+  const handleAddCard = async (data: {
+    title: string;
+    link: string;
+    type: "youtube" | "twitter";
+  }) => {
+    try {
+      const res = await axios.post(`${BACKEND_URL}/api/v1/content`, data, {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+      setCards((prev) => [...prev, res.data]); // using the saved doc from db
+    } catch (err) {
+      console.error("Failed to save content", err);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-neutral-50 overflow-hidden">
@@ -84,7 +91,7 @@ function Dashboard() {
       <ContentModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onAdd={(data) => setCards((prev) => [...prev, data])}
+        onAdd={handleAddCard}
       />
     </div>
   );
