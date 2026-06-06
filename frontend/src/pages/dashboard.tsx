@@ -73,17 +73,28 @@ function Dashboard() {
             <Button onClick={() => setModalOpen(true)} text="Add Content" />
             <Button
               onClick={async () => {
-                const response = await axios.post(
-                  `${BACKEND_URL}/api/v1/brain/share`,
-                  {
-                    share: true,
-                  },
-                  {
-                    headers: { Authorization: localStorage.getItem("token") },
-                  },
-                );
-                const shareUrl = `http://localhost:5173/share/${response.data.hash}`;
-                alert(shareUrl);
+                try {
+                  const response = await axios.post(
+                    `${BACKEND_URL}/api/v1/brain/share`,
+                    {
+                      share: true,
+                    },
+                    {
+                      headers: {
+                        Authorization: localStorage.getItem("token"),
+                      },
+                    },
+                  );
+
+                  const shareUrl = `http://localhost:5173/share/${response.data.hash}`;
+
+                  await navigator.clipboard.writeText(shareUrl);
+
+                  alert("Link copied to clipboard!");
+                } catch (error) {
+                  console.error(error);
+                  alert("Failed to copy link");
+                }
               }}
               text="Share Brain"
             />
