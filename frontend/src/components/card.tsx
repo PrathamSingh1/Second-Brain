@@ -3,33 +3,30 @@ import {
   IconBrandYoutube,
   IconBrandX,
   IconExternalLink,
+  IconTrash,
 } from "@tabler/icons-react";
 
 type CardType = "youtube" | "twitter";
 
 interface CardProps {
+  _id?: string;
   title: string;
   link: string;
   type: CardType;
+  onDelete?: (id: string) => void;
 }
 
 function getYouTubeEmbedUrl(url: string): string {
-  // Handle youtu.be short links
   const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
   if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
-
-  // Handle youtube.com/watch?v=
   const longMatch = url.match(/[?&]v=([^&]+)/);
   if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`;
-
-  // Handle youtube.com/embed/ already
   if (url.includes("/embed/")) return url;
-
   return url;
 }
 
 function getTwitterStatusUrl(url: string): string {
-  // Normalize x.com → twitter.com for the embed blockquote href
+  if (!url) return "";
   return url.replace("x.com", "twitter.com");
 }
 
@@ -59,18 +56,14 @@ function TwitterEmbed({ url }: { url: string }) {
 
   useEffect(() => {
     if (!containerRef.current) return;
-
-    // Load Twitter widget script if not already present
     const existingScript = document.querySelector(
       'script[src="https://platform.twitter.com/widgets.js"]',
     );
-
     const renderWidget = () => {
       if ((window as any).twttr?.widgets) {
         (window as any).twttr.widgets.load(containerRef.current);
       }
     };
-
     if (existingScript) {
       renderWidget();
     } else {
@@ -96,7 +89,7 @@ function TwitterEmbed({ url }: { url: string }) {
   );
 }
 
-export const Card = ({ title, link, type }: CardProps) => {
+export const Card = ({ _id, title, link, type, onDelete }: CardProps) => {
   return (
     <div
       className="w-85 rounded-xl bg-white flex flex-col p-6"
@@ -135,20 +128,36 @@ export const Card = ({ title, link, type }: CardProps) => {
           </span>
         </div>
 
-        {/* External link */}
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-0.5 flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100"
-          style={{
-            boxShadow:
-              "0 1px 1px rgba(0,0,0,0.05), 0 4px 6px rgba(34,42,53,0.04), 0 2px 3px rgba(0,0,0,0.04)",
-          }}
-          aria-label="Open original link"
-        >
-          <IconExternalLink className="h-3.5 w-3.5" />
-        </a>
+        {/* Actions */}
+        <div className="flex items-center gap-1 mt-0.5 flex-shrink-0">
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100"
+            style={{
+              boxShadow:
+                "0 1px 1px rgba(0,0,0,0.05), 0 4px 6px rgba(34,42,53,0.04), 0 2px 3px rgba(0,0,0,0.04)",
+            }}
+            aria-label="Open original link"
+          >
+            <IconExternalLink className="h-3.5 w-3.5" />
+          </a>
+
+          {onDelete && _id && (
+            <button
+              onClick={() => onDelete(_id)}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 hover:text-red-500 hover:bg-red-50 active:scale-[0.97]"
+              style={{
+                boxShadow:
+                  "0 1px 1px rgba(0,0,0,0.05), 0 4px 6px rgba(34,42,53,0.04), 0 2px 3px rgba(0,0,0,0.04)",
+              }}
+              aria-label="Delete card"
+            >
+              <IconTrash className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Divider */}

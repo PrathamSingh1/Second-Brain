@@ -11,7 +11,7 @@ import { useContent } from "../hooks/useContent";
 function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { cards, setCards } = useContent();
+  const { cards, deleteCard, refresh } = useContent();
 
   const handleAddCard = async (data: {
     title: string;
@@ -19,12 +19,12 @@ function Dashboard() {
     type: "youtube" | "twitter";
   }) => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/v1/content`, data, {
+      await axios.post(`${BACKEND_URL}/api/v1/content`, data, {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
       });
-      setCards((prev) => [...prev, res.data]); // using the saved doc from db
+      refresh();
     } catch (err) {
       console.error("Failed to save content", err);
     }
@@ -71,7 +71,22 @@ function Dashboard() {
 
           <div className="flex items-center gap-3">
             <Button onClick={() => setModalOpen(true)} text="Add Content" />
-            <Button text="Share Brain" />
+            <Button
+              onClick={async () => {
+                const response = await axios.post(
+                  `${BACKEND_URL}/api/v1/brain/share`,
+                  {
+                    share: true,
+                  },
+                  {
+                    headers: { Authorization: localStorage.getItem("token") },
+                  },
+                );
+                const shareUrl = `http://localhost:5173/share/${response.data.hash}`;
+                alert(shareUrl);
+              }}
+              text="Share Brain"
+            />
           </div>
         </div>
 
@@ -80,9 +95,11 @@ function Dashboard() {
           {cards.map((card, i) => (
             <Card
               key={i}
+              _id={card._id}
               title={card.title}
               type={card.type}
               link={card.link}
+              onDelete={deleteCard}
             />
           ))}
         </div>
