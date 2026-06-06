@@ -4,6 +4,7 @@ import { useState } from "react";
 import { IconBrain, IconUser, IconLock, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../config/config";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -17,7 +18,7 @@ export default function Signup() {
     setLoading(true);
     setError("");
     try {
-      await axios.post("/api/v1/signup", { username, password });
+      await axios.post(`${BACKEND_URL}/api/v1/signup`, { username, password });
       navigate("/signin");
     } catch (err: any) {
       setError(err?.response?.data?.message || "Something went wrong");

@@ -9,6 +9,7 @@ import {
 } from "@tabler/icons-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../config/config";
 
 export default function Signin() {
   const [username, setUsername] = useState("");
@@ -22,7 +23,10 @@ export default function Signin() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post("/api/v1/signin", { username, password });
+      const res = await axios.post(`${BACKEND_URL}/api/v1/signin`, {
+        username,
+        password,
+      });
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch (err: any) {
